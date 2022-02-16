@@ -4,64 +4,85 @@
 #include <algorithm>
 #include <iterator>
 #include <string>
-#include <unordered_map>
+#include <map>
 #include <cstring>
+#include <fstream>
 
 //=====================================================================
 
-class Text
+struct Statistics
 {
-public:
-    Text() = default;
-    Text(const Text& other) = delete;
-    ~Text() = default;
+    std::string lexem = "";
+    size_t counter   = 0;
 
-    void split();
-    void input();
-    void prepare();
-    void parsing();
-
-private:
-    std::string input_str_  = "";
-    std::string parsed_str_ = "";
-
-    std::vector<std::string> lexems;
+    bool operator<(const Statistics& other) const;
+    bool operator>(const Statistics& other) const;
 };
+
+//=====================================================================
+
+bool Statistics::operator<(const Statistics& other) const
+{
+    return counter < other.counter;
+}
+
+bool Statistics::operator>(const Statistics& other) const
+{
+    return counter > other.counter;
+}
+
+std::string prepare(const std::string& str)
+{
+    std::string out_str;
+
+    for(size_t i = 0; i < static_cast<size_t>(str.size()); ++i)
+    {
+        out_str.push_back(static_cast<char>(std::tolower(str[i])));
+    }
+
+    if(!isalpha(out_str.back()))
+    {
+        out_str.pop_back();
+    }
+
+    return out_str;
+}
 
 //=====================================================================
 
 int main()
 {
-    Text test;
-    test.input();
-    test.prepare();
-}
+    std::ifstream file;
+    file.open("test");
 
-//=====================================================================
-
-void Text::input()
-{
-    std::cout << "Please write your message: ";
-    std::getline(std::cin, input_str_, ',');
-    parsed_str_ = input_str_;
-}
-
-void Text::prepare()
-{
-    for(size_t i = 0; i < static_cast<size_t>(input_str_.size()); ++i)
+    if(file.is_open())
     {
-        if(input_str_[i] == ',' || input_str_[i] == ';' || input_str_[i] == '!' || input_str_[i] == '?')
-        {
-            parsed_str_[i] = ' ';
-        }
-        else
-        {
-            parsed_str_[i] = static_cast<char>(std::tolower(input_str_[i]));
-        }
-    }
-    std::cout << parsed_str_ << std::endl;
-}
+        std::string lexem;
+        std::map<std::string, size_t> lexems;
 
-void Text::parsing()
-{
+        while(!file.eof())
+        {
+            file >> lexem;
+            lexem = prepare(lexem);
+            lexems[lexem]++;
+        }
+        
+        std::vector<Statistics> str_stat;
+        for(const auto& i : lexems)
+        {
+            Statistics temp = {i.first, i.second};
+            str_stat.push_back(temp);
+        }
+
+        std::sort(str_stat.begin(), str_stat.end());
+
+        for(const auto& i : str_stat)
+        {            
+            std::cout << i.lexem << i.counter << std::endl;
+        }
+
+        file.close();
+    }
+
+    return 0;
 }
