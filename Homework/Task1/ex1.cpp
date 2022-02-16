@@ -40,7 +40,7 @@ std::string prepare(const std::string& str)
         out_str.push_back(static_cast<char>(std::tolower(str[i])));
     }
 
-    if(!isalpha(out_str.back()))
+    while(!isalpha(out_str.back()))
     {
         out_str.pop_back();
     }
@@ -53,7 +53,7 @@ std::string prepare(const std::string& str)
 int main()
 {
     std::ifstream file;
-    file.open("test");
+    file.open("../test");
 
     if(file.is_open())
     {
@@ -78,7 +78,7 @@ int main()
 
         for(const auto& i : str_stat)
         {            
-            std::cout << i.lexem << i.counter << std::endl;
+            std::cout << i.lexem << " " << i.counter << std::endl;
         }
 
         file.close();
